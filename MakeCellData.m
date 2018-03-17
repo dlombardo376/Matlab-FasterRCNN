@@ -7,7 +7,7 @@ fileNames = {allFilesInfo.name};
 %for a given image get all masks, starts with index = 3
 image_boxes = {};
 image_names = {};
-for i=3:50%length(fileNames)
+for i=3:15%length(fileNames)
     image_folder = strcat(baseDir,'\',fileNames{i},'\images\');
     image_name = strcat(image_folder,fileNames{i},'.png');
     maskFolder = strcat(baseDir,'\',fileNames{i},'\masks');
@@ -36,11 +36,11 @@ for i=3:50%length(fileNames)
     image_boxes = [image_boxes; mask_box];
     image_names = [image_names; image_name];
     %%read in a sample image
-    I = imread(image_name);
-    I = imresize(I,[128,194]);
-    I = insertShape(I,'Rectangle',mask_box);
-    figure
-    imshow(I)
+%     I = imread(image_name);
+%     I = imresize(I,[128,194]);
+%     I = insertShape(I,'Rectangle',mask_box);
+%     figure
+%     imshow(I)
 end
 
 cellData = [image_names; image_boxes];
