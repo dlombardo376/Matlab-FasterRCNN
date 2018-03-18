@@ -31,17 +31,6 @@ doTrainingAndEval = false;
 
 detector = data.detector;
 
-    
-%verify the training
-I = imread('highway.png');
-
-%run the trained detector on the loaded image
-[bboxes,scores] = detect(detector,I);
-
-%I = insertObjectAnnotation(I,'rectangle',bboxes,scores);
-%figure
-%imshow(I)
-
 %run the trained detector on each test image
 resultsStruct = struct([]);
 for i = 1:height(testData)
@@ -52,9 +41,7 @@ for i = 1:height(testData)
     resultsStruct(i).Scores = scores;
     resultsStruct(i).Labels = labels;
     
+    I = insertObjectAnnotation(I,'rectangle',resultsStruct(1).Boxes,resultsStruct(1).Scores);
+    figure
+    imshow(I)
 end
- 
-I = imread(testData.imageFilename{1});
-I = insertObjectAnnotation(I,'rectangle',resultsStruct(1).Boxes,resultsStruct(1).Scores);
-figure
-imshow(I)

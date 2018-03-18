@@ -1,26 +1,30 @@
 baseDir = 'C:\Users\Danny\kaggle\dsbowl18\input\stage1_train';
-
+croppedDir = 'C:\Users\Danny\kaggle\dsbowl18\input\train256_purpleWhite';
 %get all filenames in the training set
-allFilesInfo = dir(baseDir);
+allFilesInfo = dir(croppedDir);
 fileNames = {allFilesInfo.name};
 
 %for a given image get all masks, starts with index = 3
 image_boxes = {};
 image_names = {};
-for i=3:15%length(fileNames)
-    image_folder = strcat(baseDir,'\',fileNames{i},'\images\');
-    image_name = strcat(image_folder,fileNames{i},'.png');
-    maskFolder = strcat(baseDir,'\',fileNames{i},'\masks');
+
+maxWidth = 0;
+maxHeight = 0;
+for i=3:length(fileNames)
+    image_name = strcat(croppedDir,'\',fileNames{i});
+    maskFolder = strcat(baseDir,'\',fileNames{i}(1:(end-4)),'\masks');
     maskInfo=dir(maskFolder);
     maskNames = {maskInfo.name};
     isInitialized = false;
+    mask_box = [];
     %mask_box = zeros(length(maskNames)-2,4);
     for j = 3:length(maskNames)
         maskFile = strcat(maskFolder,'\',maskNames{j});
         mask_ = imread(maskFile);
-        mask_ = imresize(mask_,[128,194]);
-        if(max(mask_(:))>0)
-            [mask_row,mask_col] = find(mask_);
+        mask_ = imresize(mask_,[256,256]); %cut into sections of 128x128
+        mask1 = mask_(1:256,1:256);
+        if(max(mask1(:))>0)
+            [mask_row,mask_col] = find(mask1);
             mask_width = (max(mask_row)-min(mask_row));
             mask_height = (max(mask_col)-min(mask_col));
             isGood = false;
@@ -31,16 +35,20 @@ for i=3:15%length(fileNames)
             elseif(isGood==true)
                 mask_box = [mask_box; min(mask_col) min(mask_row) mask_height mask_width];
             end
+            
+            if(mask_width > maxWidth) maxWidth = mask_width; end
+            if(mask_height > maxHeight) maxHeight = mask_height; end
         end
     end
-    image_boxes = [image_boxes; mask_box];
-    image_names = [image_names; image_name];
-    %%read in a sample image
-%     I = imread(image_name);
-%     I = imresize(I,[128,194]);
-%     I = insertShape(I,'Rectangle',mask_box);
-%     figure
-%     imshow(I)
+    if(length(mask_box>0))
+        image_boxes = [image_boxes; mask_box];
+        image_names = [image_names; image_name];
+        %%read in a sample image
+        %I = imread(image_name);
+        %I = insertShape(I,'Rectangle',mask_box);
+        %figure
+        %imshow(I)
+    end
 end
 
 cellData = [image_names; image_boxes];
