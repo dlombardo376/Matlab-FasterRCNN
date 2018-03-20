@@ -5,7 +5,7 @@ MakeCellData();
 %define CNN layers to be used in RCNN
 %%%%%%%%%%%%%%%%%
 %chose input size 32x32, since all objects are greater than 16x16 at least
-inputLayer = imageInputLayer([96 96 3]);
+inputLayer = imageInputLayer([48 48 3]);
 
 %CNN parameters
 filterSize = [3 3];
@@ -39,7 +39,7 @@ layers = [
 
 %RCNN has four parts
 options = trainingOptions('sgdm',...
-    'MaxEpochs', 100, ...
+    'MaxEpochs', 10, ...
     'InitialLearnRate', 1e-6);
 
 %do training
@@ -47,14 +47,14 @@ options = trainingOptions('sgdm',...
 rng(42);
 
 %train the RCNN object detector
-% detector = trainFasterRCNNObjectDetector(trainingData,layers,options,...
-%     'NegativeOverlapRange',[0 0.2], ...
-%     'PositiveOverlapRange',[0.3 1], ...
-%     'BoxPyramidScale',1.2);
-detector = trainFasterRCNNObjectDetector(trainingData,layers,options);
+detector = trainFasterRCNNObjectDetector(trainingData,layers,options,...
+     'NegativeOverlapRange',[0 0.4], ...
+     'PositiveOverlapRange',[0.5 1], ...
+     'BoxPyramidScale',2);
+%detector = trainFasterRCNNObjectDetector(trainingData,layers,options);
 
-I = imread(testData.imageFilename{1});
+I = imread(trainingData.imageFilename{1});
 [bboxes,scores] = detect(detector,I)
-%I = insertObjectAnnotation(I,'rectangle',bboxes,scores);
-%figure
-%imshow(I)
+I = insertObjectAnnotation(I,'rectangle',bboxes,scores);
+figure
+imshow(I)

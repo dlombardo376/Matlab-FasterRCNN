@@ -8,8 +8,8 @@ fileNames = {allFilesInfo.name};
 image_boxes = {};
 image_names = {};
 
-maxWidth = 0;
-maxHeight = 0;
+allWidth = [];
+allHeight = [];
 for i=3:length(fileNames)
     image_name = strcat(croppedDir,'\',fileNames{i});
     maskFolder = strcat(baseDir,'\',fileNames{i}(1:(end-4)),'\masks');
@@ -27,17 +27,20 @@ for i=3:length(fileNames)
             [mask_row,mask_col] = find(mask1);
             mask_width = (max(mask_row)-min(mask_row));
             mask_height = (max(mask_col)-min(mask_col));
+            allWidth = [allWidth;mask_width];
+            allHeight = [allHeight;mask_height];
+            
             isGood = false;
-            if(mask_width > 0 && mask_height > 0) isGood = true; end
+            if(mask_width > 10 && mask_height > 10 && mask_width < 40 && mask_height < 40) 
+                isGood = true; 
+            end
             if(isInitialized == false && isGood == true) %first mask we are adding
                 mask_box = [min(mask_col) min(mask_row) mask_height mask_width];
                 isInitialized = true;
             elseif(isGood==true)
                 mask_box = [mask_box; min(mask_col) min(mask_row) mask_height mask_width];
             end
-            
-            if(mask_width > maxWidth) maxWidth = mask_width; end
-            if(mask_height > maxHeight) maxHeight = mask_height; end
+           
         end
     end
     if(length(mask_box>0))
